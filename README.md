@@ -134,16 +134,3 @@ The frontend may require environment variables for API endpoints. Check `src/uti
 - Models: `contracts/models.py`
 - Tests: `contracts/tests.py`
 
-## Deployment
-
-### Frontend Deployment
-The frontend can be deployed to Vercel, Netlify, or any platform supporting Next.js.
-
-### Backend Deployment
-The backend can be deployed to platforms supporting Django applications like Heroku, Railway, or a VPS.
-
-## Troubleshooting
-
-- If you encounter CORS issues, ensure the backend is running and accessible
-- Check that all dependencies are installed correctly
-- Verify database migrations are applied
