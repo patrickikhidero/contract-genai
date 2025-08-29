@@ -114,8 +114,12 @@ python manage.py test
 ### Backend (.env file in contract-generator-gateway/)
 Create a `.env` file with the following variables if needed:
 ```
-DEBUG=True
+DEBUG=True (for development)
 SECRET_KEY=your-secret-key-here
+GEMINI_API_KEY=your-secret-key-here
+DJANGO_SECRET_KEY=your-secret-key-here
+URL="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+
 ```
 
 ### Frontend
