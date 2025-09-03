@@ -1,3 +1,5 @@
+import { handleApiResponse, createUserFriendlyError, withUserFriendlyError } from './errorHandling';
+
 export interface GenerateContractRequest {
   prompt: string;
 }
@@ -10,19 +12,12 @@ export interface StreamContractResponse {
   data: string;
 }
 
-class ApiError extends Error {
-  constructor(message: string, public status?: number) {
-    super(message);
-    this.name = 'ApiError';
-  }
-}
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export const generateContract = async (
   request: GenerateContractRequest
 ): Promise<GenerateContractResponse> => {
-  try {
+  return withUserFriendlyError(async () => {
     const response = await fetch(`${API_BASE_URL}/api/contracts/generate/`, {
       method: 'POST',
       headers: {
@@ -31,18 +26,10 @@ export const generateContract = async (
       body: JSON.stringify(request),
     });
 
-    if (!response.ok) {
-      throw new ApiError(`HTTP error! status: ${response.status}`, response.status);
-    }
-
+    await handleApiResponse(response);
     const data = await response.json();
     return data;
-  } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-    throw new ApiError('Failed to generate contract. Please try again.');
-  }
+  }, 'generate contract');
 };
 
 export interface StreamContractOptions {
@@ -137,11 +124,11 @@ export const streamContract = async (
     );
 
     if (!response.ok) {
-      throw new ApiError(`HTTP error! status: ${response.status}`, response.status);
+      await handleApiResponse(response);
     }
 
     if (!response.body) {
-      throw new ApiError('Response body is null');
+      throw createUserFriendlyError(new Error('Response body is null'), 'stream contract');
     }
 
     const reader = response.body.getReader();
@@ -337,12 +324,8 @@ export const streamContract = async (
       return;
     }
     
-    if (error instanceof ApiError) {
-      onError?.(error);
-    } else {
-      console.error('Stream contract error:', error);
-      onError?.(new ApiError('Failed to stream contract. Please try again.'));
-    }
+    const userFriendlyError = createUserFriendlyError(error, 'stream contract');
+    onError?.(userFriendlyError);
   }
 };
 
